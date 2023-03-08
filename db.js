@@ -1,4 +1,24 @@
-module.exports= {
-    name:"Dsandhu",
-    App:"DesiVibes"
-}
+module.exports= [
+    {
+        image1:"Images1",
+        image2:"Images2",
+        image3:"Images3",
+        image4:"Images4",
+        image5:"Images5",
+        name:"Bat",
+        type:"Sports",
+        color:"Color",
+        size:"Size"
+    },
+    {
+        image1:"Images1",
+        image2:"Images2",
+        image3:"Images3",
+        image4:"Images4",
+        image5:"Images5",
+        name:"Ball",
+        type:"Sports",
+        color:"Color",
+        size:"Size"
+    },
+]

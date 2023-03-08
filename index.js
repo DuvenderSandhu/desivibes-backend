@@ -6,7 +6,18 @@ const bcrypt = require("bcryptjs");
 let cors = require('cors')
 const mongoose = require("mongoose");
 const db = require("./db");
-
+// const fetchUser='./Middleware/loginUser'
+const fetchUser = function (req, res, next) {
+  if (req.body.token) {
+    try {
+      let result = jwt.verify(req.body.token, JWT_SECRET);
+      req.user = result.user;
+    } catch (error) {
+      res.status(401).json({ error: "Unauthorized Login" });
+    }
+  }
+  next();
+};
 
 const app= express()
 const MONGO_URI="mongodb://localhost:27017/DesiVibes"
@@ -30,7 +41,30 @@ const userSchema = new mongoose.Schema({
   mobile:String,
   password: String,
 });
+
+const cartSchema = new mongoose.Schema({
+        name:String,
+        type:String,
+        color:String,
+        size:String,
+        user:Object
+});
+
+const productSchema = new mongoose.Schema({
+        image1:String,
+        image2:String,
+        image3:String,
+        image4:String,
+        image5:String,
+        name:String,
+        type:String,
+        color:String,
+        size:String
+});
+
 const User = mongoose.model("user", userSchema);
+const Product = mongoose.model("product", productSchema);
+const Cart = mongoose.model("cart", cartSchema);
 
 app.get("/", async function(req,res){
     res.send("Hello world")
@@ -58,7 +92,9 @@ app.post("/signup", async (req, res) => {
           }
     }
   });
-  
+app.get('/login',(req,res)=>{
+  res.send("Login required")
+})
   app.post("/login", async (req, res) => {
     // Login Is n't WOring Fix THis
     let mongodb=await connectToMongo()
@@ -93,13 +129,44 @@ app.get('/forgot/:email',(req,res)=>{
     res.send("Todo: Forgot Password")
 })
 
-app.get('/shop',(req,res)=>{
-    res.send(db)
+app.get('/shop',async(req,res)=>{
+  let mongodb=await connectToMongo()
+  if(mongodb!="Connected"){
+    res.redirect('/');
+  }
+  else{
+    let product= await Product.find()
+    res.send(product)
+  }
 })
 
-app.get('/search/:product',(req,res)=>{
+app.get('/search/:product',async (req,res)=>{
     // TODO: 
-    res.send("Todo: Search Product")
+    let mongodb=await connectToMongo()
+    if(mongodb!="Connected"){
+      res.redirect('/');
+    }
+    else{
+      let query= req.params.product
+      let product= await Product.find({ name: query})
+      res.send(product)
+    }
+    
+})
+
+app.get('/cart',fetchUser,async(req,res)=>{
+  if(req.user && await connectToMongo()){
+    console.log("WOrking")
+    let cart= await Cart.find({user:req.user})
+    console.log("WOrking")
+    res.send(cart)
+  }
+  else{
+    res.redirect('/login')
+  }
+})
+
+app.get('/cart/:product',async (req,res)=>{
 })
 
 
