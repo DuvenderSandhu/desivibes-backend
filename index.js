@@ -155,10 +155,8 @@ app.get('/search/:product',async (req,res)=>{
 })
 
 app.get('/cart',fetchUser,async(req,res)=>{
-  if(req.user && await connectToMongo()){
-    console.log("WOrking")
+  if(req.user && await connectToMongo()==="Connected"){
     let cart= await Cart.find({user:req.user})
-    console.log("WOrking")
     res.send(cart)
   }
   else{
@@ -166,7 +164,26 @@ app.get('/cart',fetchUser,async(req,res)=>{
   }
 })
 
-app.get('/cart/:product',async (req,res)=>{
+app.get('/cart/:product',fetchUser,async (req,res)=>{
+  if(req.user && await connectToMongo()==="Connected"){
+    try{
+      let product= await Product.find({_id:req.params.product})
+      if(product.length!=0){
+          // let cart= Cart.create({name:product[0].name,type:product[0].category||"UnCategorized",color:product[0].color})
+      // res.send()
+      }
+      else{
+        res.redirect('/shop')
+      }
+
+    }
+    catch{
+      res.send("Nothing Found")
+    }
+  }
+  else{
+    res.redirect('/login')
+  }
 })
 
 
